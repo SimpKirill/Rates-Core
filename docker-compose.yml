@@ -1,0 +1,61 @@
+version: '3.3'
+
+services:
+  core:
+    build:
+      context: .
+      dockerfile: core/Dockerfile
+    environment:
+      BROKER_URL: ${BROKER_URL}
+      DB_URL: ${DB_URL}
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - app-network
+    volumes:
+      - ./worker:/Rates-Core/worker
+      - ./core:/Rates-Core/core
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    environment:
+      BROKER_URL: ${BROKER_URL}
+      DB_URL: ${DB_URL}
+      EMAIL_SMTP_SERVER: ${EMAIL_SMTP_SERVER}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+      EMAIL_SMTP_USER: ${EMAIL_SMTP_USER}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - app-network
+    volumes:
+      - ./worker:/Rates-Core/worker
+      - ./core:/Rates-Core/core
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "15672:15672"
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_PORT}"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
