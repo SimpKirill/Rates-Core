@@ -11,6 +11,9 @@
 #### Docker
 - Create .env file, for example
 ```
+BROKER_URL=pyamqp://guest:guest@rabbitmq:5672//
+DB_URL=postgresql://user:password@postgres:5432/rates_db
+
 POSTGRES_HOST=postgres
 POSTGRES_USER="<YOUR DATABASE USER>"
 POSTGRES_PASSWORD="<YOUR DATABASE USER PASSWORD>"
